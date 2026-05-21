@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reconocimiento de Imágenes con Select</title>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.13/lib/p5.min.js"></script>
+    <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+    <style>
+      body { font-family: sans-serif; margin: 20px; }
+      #controls { margin-bottom: 15px; }
+      select { padding: 5px; font-size: 14px; }
+    </style>
+  </head>
+  <body>
+    <h2>Reconocimiento de imágenes</h2>
+
+    <div id="controls">
+      <label for="animalSelect">Selecciona un animal: </label>
+      <select id="animalSelect">
+        <option value="" disabled selected>-- Elige una opción --</option>
+        <option value="images/hipo.jpg">Hipopótamo</option>
+        <option value="images/tigre.jpg">Tigre</option>
+        <option value="images/animal03.jpg">Huron</option>
+        <option value="images/animal02.jpg">Lobo</option>
+      </select>
+    </div>
+
+    <script>
+      let classifier; 
+      let img; 
+      let label = ""; 
+      let confidence = ""; 
+
+      function preload() {
+        classifier = ml5.imageClassifier("MobileNet");
+      }
+
+      function setup() {
+        createCanvas(400, 400);
+        background(220); 
+
+        const selector = document.getElementById("animalSelect");
+        selector.addEventListener("change", cambiarImagen);
+      }
+
+      function draw() {
+        if (img) {
+          image(img, 0, 0, width, height);
+          
+          if (label !== "") {
+            textSize(18);
+            fill(255);
+            stroke(0);
+            strokeWeight(3); 
+            
+            text(label, 20, 40);
+            text(confidence, 20, 65);
+          }
+        }
+      }
+
+      function cambiarImagen(event) {
+        const rutaImagen = event.target.value;
+        
+        if (rutaImagen) {
+          label = "Clasificando...";
+          confidence = "";
+
+          img = loadImage(rutaImagen, () => {
+            classifier.classify(img)
+              .then(gotResult)
+              .catch(err => console.error("Error al clasificar:", err));
+          });
+        }
+      }
+
+      function gotResult(result) {
+        console.log(result);
+        if (result && result.length > 0) {
+          label = `Descripción: ${result[0].label}`;
+          confidence = `Confianza: ${(result[0].confidence * 100).toFixed(2)}%`;
+        }
+      }
+    </script>
+  </body>
+</html>

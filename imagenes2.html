@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.10/p5.min.js"></script>
+  <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+
+  <style>
+    body{
+      background-color: antiquewhite;
+    }
+  </style>
+
+</head>
+
+<body>
+  <input type="text" id="descripcion">
+  <input type="text" id="confianza">
+
+  <h1>Reconocimiento por video</h1>
+
+  <script>
+
+    let classifier
+    let video
+    let label
+    let confidence
+
+    function preload(){
+
+      //Reconocimiento de imágenes
+      classifier = ml5.imageClassifier("MobileNet")
+
+    }
+
+    function setup(){
+
+      createCanvas(640, 480) //Rectangular
+
+      background(255) //color de fondo blanco
+
+      //Iniciamos la deteccion desde la camara
+      video = createCapture(VIDEO) //P5.js
+      video.size(640, 480)
+      video.hide()
+      classifier.classifyStart(video, gotResult)
+
+    }
+
+    //Renderizas cada fotograma de la acmra en el canvas utilizamos
+    
+
+    function draw(){
+      image(video, 0, 0)
+      
+
+    }
+
+    function gotResult(result){
+      // console.log(result)
+
+      const nivelConfianza = (result[0].confidence * 100).toFixed(2)
+
+      if(nivelConfianza > 50){
+        document.getElementById("descripcion").value= result[0].label
+        document.getElementById("confianza").value= nivelConfianza
+
+      }else{
+        document.getElementById("descripcion").value=  ''
+        document.getElementById("confianza").value= ''
+
+        
+
+      }
+
+
+
+
+
+    }
+
+  </script>
+
+</body>
+</html>

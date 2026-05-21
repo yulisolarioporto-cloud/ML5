@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <!-- P5.JS Facilitarnos la gestión de: canvas, sonido , camara, video-->
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.13/lib/p5.min.js"></script>
+
+    <!-- ML5 (ML) Última versión-->
+    <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+  </head>
+  <body>
+    <h2>Reconocimiento imágenes</h2>
+
+    <script>
+      //console.log("Version ML5: ", ml5.version);
+      let classifier; // ML5
+      let img; //imagen
+      let label; //descripcion
+      let confidence; //nivel de confianza
+
+      //Pre Configuracion - ML5
+      function preload() {
+        //reconocimiento de imagenes
+        classifier = ml5.imageClassifier("MobileNet");
+        img = loadImage("images/hipo.jpg"); //funcion de P5
+      }
+      //Configuración - entorno
+      function setup() {
+        createCanvas(400, 400); //ancho x alto
+        classifier.classify(img, gotResult);
+        //Renderizar la imagen en el canvas
+        //image(renderiza en el canvas[0])
+        image(img, 0, 0, width, height);
+      }
+
+      //Resultados
+      function gotResult(result) {
+        console.log(result);
+        //Renderizar el resultado sobre la imagen(canvas)
+        label = ` Descripción: ${result[0].label}`;
+        confidence = `Confianza: ${(result[0].confidence * 100).toFixed(2)}`;
+
+        textSize(18); //Tamaño de fuente
+        fill(255); //Color
+        stroke(1); //Borde
+
+        //Agregar el texto en el canvas[0]
+        text(label, 20, 30);
+        text(confidence, 20, 50);
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        console.log("Documento listo");
+      });
+    </script>
+  </body>
+</html>
