@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- p5.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+
+  <!-- ml5.js -->
+  <script src="https://unpkg.com/ml5@1.2.0/dist/ml5.min.js"></script>
+
+  <title>Detección de manos</title>
+</head>
+
+<body>
+
+  <h1>Detección puntos en la mano</h1>
+
+  <div>
+    <label for="totalManos">Total manos</label>
+    <input type="text" id="totalManos">
+  </div>
+
+  <br>
+
+  <div>
+    <label for="puntosDerecha">Puntos mano derecha:</label>
+    <input type="text" id="puntosDerecha">
+  </div>
+
+  <br>
+
+  <div>
+    <label for="puntosIzquierda">Puntos mano izquierda:</label>
+    <input type="text" id="puntosIzquierda">
+  </div>
+
+<script>
+
+  // Variables y objetos
+  let handPose
+  let video
+  let hands = []
+
+  // Asignar el modelo
+  function preload(){
+    handPose = ml5.handPose()
+  }
+
+  // Construir/gestionar UI
+  function setup(){
+
+    // Renderizar video
+    createCanvas(640, 480)
+
+    video = createCapture(VIDEO)
+    video.size(640, 480)
+    video.hide()
+
+    // Iniciar detección manos
+    handPose.detectStart(video, gotHands)
+  }
+
+  // Render
+  function draw(){
+
+    // Pintar video
+    image(video, 0, 0, width, height)
+
+    // Total manos
+    document.getElementById("totalManos").value = hands.length
+
+    // Reiniciar valores
+    document.getElementById("puntosDerecha").value = 0
+    document.getElementById("puntosIzquierda").value = 0
+
+    // Construir puntos en pantalla
+    for(let i = 0; i < hands.length; i++){
+
+      let hand = hands[i] // Información de una sola mano
+
+      // Mano derecha
+      if(hand.handedness == "Right"){
+        document.getElementById("puntosDerecha").value =
+        hand.keypoints.length
+      }
+
+      // Mano izquierda
+      if(hand.handedness == "Left"){
+        document.getElementById("puntosIzquierda").value =
+        hand.keypoints.length
+      }
+
+      // Dibujar puntos
+      for(let j = 0; j < hand.keypoints.length; j++){
+
+        // Primer punto de la mano
+        let keypoint = hand.keypoints[j]
+
+        fill(0, 255, 0) // RGB
+        noStroke() // Sin borde
+
+        circle(keypoint.x, keypoint.y, 10) // EjeX, EjeY, Radio
+      }
+    }
+  }
+
+  // Resultados
+  function gotHands(result){
+
+    // Retorna un array con la información de la mano/dedos
+    hands = result
+  }
+
+</script>
+
+</body>
+</html>

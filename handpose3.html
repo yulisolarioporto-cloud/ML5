@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Librería p5.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+
+  <!-- Librería ml5.js -->
+  <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+
+  <title>Pinch HandPose</title>
+</head>
+
+<body>
+
+<script>
+
+//Variables
+let handPose
+let video
+let hands = []
+
+//Variable del pinch
+let pinch = 0
+
+//Asignar modelo
+function preload(){
+
+    //Cargar modelo HandPose
+    handPose = ml5.handPose()
+}
+
+//Construir/Gestionar UI
+function setup(){
+
+    //Crear canvas
+    createCanvas(640, 480)
+
+    //Activar cámara
+    video = createCapture(VIDEO)
+    video.size(640, 480)
+    video.hide()
+
+    //Iniciar detección
+    handPose.detectStart(video, gotHands)
+}
+
+//Render
+function draw(){
+
+    //Mostrar cámara
+    image(video, 0, 0, width, height)
+
+    //Si existe al menos una mano
+    if(hands.length > 0){
+
+        //Dedo índice
+        let finger = hands[0].index_finger_tip
+
+        //Pulgar
+        let thumb = hands[0].thumb_tip
+
+        //Centro entre dedos
+        let centerX = (finger.x + thumb.x) / 2
+        let centerY = (finger.y + thumb.y) / 2
+
+        //Distancia entre dedos
+        pinch = dist(finger.x, finger.y, thumb.x, thumb.y)
+
+      //Color morado
+      fill(128, 0, 255, 200)
+      stroke(80, 0, 120)
+      strokeWeight(2)
+
+      //Círculo dinámico
+      circle(centerX, centerY, pinch)
+    }
+}
+
+//Resultados
+function gotHands(result){
+
+    //Guardar información de las manos
+    hands = result
+}
+
+</script>
+
+</body>
+</html>
